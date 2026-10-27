@@ -2,6 +2,7 @@ import './config/env';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { connectDB } from './config/database';
 import templateRoutes from './routes/templateRoutes';
 import generationRoutes from './routes/generationRoutes';
 
@@ -25,6 +26,16 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Ensure database connection is active (critical for Serverless environments like Vercel)
+app.use(async (_req: Request, _res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -43,3 +54,5 @@ app.use(
     });
   }
 );
+
+export default app;

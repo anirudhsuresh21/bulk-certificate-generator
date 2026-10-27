@@ -2,6 +2,10 @@
   "name": "bulk-certi-monorepo",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "build": "npm run build:backend && npm run build:frontend",
     "dev": "concurrently -k -n \"backend,frontend\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
@@ -40,7 +44,6 @@
     "@types/archiver": "^8.0.0",
     "@types/jszip": "^3.4.0",
     "archiver": "^8.0.0",
-    "bulk-certi-monorepo": "file:..",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "helmet": "^8.0.0",

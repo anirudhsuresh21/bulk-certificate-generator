@@ -1,7 +1,7 @@
 {
   "name": "bulk-certi-backend",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "app.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -13,7 +13,6 @@
     "@types/archiver": "^8.0.0",
     "@types/jszip": "^3.4.0",
     "archiver": "^8.0.0",
-    "bulk-certi-monorepo": "file:..",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

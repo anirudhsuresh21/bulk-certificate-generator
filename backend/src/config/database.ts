@@ -4,6 +4,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 let memoryServer: MongoMemoryServer | null = null;
 
 export async function connectDB(uri?: string): Promise<string> {
+  if (mongoose.connection.readyState === 1) {
+    return 'Already connected';
+  }
   const mongoUri = uri || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/bulk-certi';
 
   try {
