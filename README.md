@@ -49,34 +49,32 @@ bulk-certi/
 - MongoDB (Optional: The application automatically starts an in-memory MongoDB instance if local MongoDB is not running!)
 
 ### Installation
-From the root directory, install dependencies:
+Install dependencies across root, backend, and frontend with a single command:
 ```bash
-# Install backend dependencies
-npm --prefix backend install
+npm run install:all
+```
+*(Or install individually: `npm install && npm --prefix backend install && npm --prefix frontend install`)*
 
-# Install frontend dependencies
-npm --prefix frontend install
+### Build (Single Command)
+Build both the Express backend and the Next.js frontend with one command from the project root:
+```bash
+npm run build
 ```
 
-### Running the Application
+### Run (Single Command)
+Run both the backend (Port 5000) and frontend (Port 3000) concurrently in one terminal:
 
-**Option A: Run Backend & Frontend in separate terminals**
-
-Terminal 1 (Backend - Port 5000):
+**Development Mode (Live Reloading)**:
 ```bash
-npm run dev:backend
+npm run dev
 ```
 
-Terminal 2 (Frontend - Port 3000):
+**Production Mode**:
 ```bash
-npm run dev:frontend
+npm start
 ```
 
-**Option B: Production Build**
-```bash
-npm run build:backend
-npm run build:frontend
-```
+*(You can still run them independently if desired via `npm run dev:backend` and `npm run dev:frontend`)*
 
 Open your browser at **`http://localhost:3000`**.
 
