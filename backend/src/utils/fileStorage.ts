@@ -1,15 +1,24 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-export const UPLOADS_ROOT = path.resolve(__dirname, '../../uploads');
+// In serverless environments (Vercel / AWS Lambda), the root filesystem is read-only except /tmp
+export const UPLOADS_ROOT = (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
+  ? path.join(os.tmpdir(), 'bulk-certi-uploads')
+  : path.resolve(__dirname, '../../uploads');
+
 export const TEMPLATES_DIR = path.join(UPLOADS_ROOT, 'templates');
 export const SIGNATURES_DIR = path.join(UPLOADS_ROOT, 'signatures');
 export const GENERATED_DIR = path.join(UPLOADS_ROOT, 'generated');
 
-// Ensure necessary directories exist
+// Ensure necessary directories exist safely
 [TEMPLATES_DIR, SIGNATURES_DIR, GENERATED_DIR].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch (err) {
+    console.warn(`Warning: Could not create upload directory ${dir}:`, err);
   }
 });
 

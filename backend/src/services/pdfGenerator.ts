@@ -6,7 +6,22 @@ import JSZip from 'jszip';
 import { ITemplate, CertificateField, BackgroundPatch, FontFamily } from '../types';
 import { TEMPLATES_DIR, SIGNATURES_DIR, GENERATED_DIR, getSafeFilePath } from '../utils/fileStorage';
 
-const FONTS_DIR = path.resolve(__dirname, '../../fonts');
+function getFontsDir(): string {
+  const candidates = [
+    path.resolve(__dirname, '../../fonts'),
+    path.resolve(__dirname, '../fonts'),
+    path.resolve(process.cwd(), 'fonts'),
+    path.resolve(process.cwd(), 'backend/fonts'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return path.resolve(__dirname, '../../fonts');
+}
+
+const FONTS_DIR = getFontsDir();
 const fontBufferCache = new Map<string, Buffer>();
 
 function getCustomFontBuffer(fileName: string): Buffer | null {
