@@ -1,3 +1,13 @@
+import nextEnv from '@next/env';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const { loadEnvConfig } = nextEnv;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load common root .env for monorepo configuration
+loadEnvConfig(path.resolve(__dirname, '..'));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,

@@ -80,19 +80,18 @@ Open your browser at **`http://localhost:3000`**.
 
 ---
 
-## 3. Environment Variables
+## 3. Environment Variables (Single Root `.env`)
 
-### Backend (`backend/.env`)
-| Variable | Default | Description |
+Both the backend and frontend automatically load from a single common **`.env`** file at the project root:
+
+| Variable | Default / Example | Purpose |
 |---|---|---|
 | `PORT` | `5000` | HTTP port for the Express backend |
-| `MONGODB_URI` | `mongodb://127.0.0.1:27017/bulk-certi` | MongoDB connection string (falls back to in-memory if unreachable) |
 | `NODE_ENV` | `development` | Runtime environment (`development` / `production`) |
+| `MONGODB_URI` | `mongodb+srv://...` | MongoDB connection string (falls back to in-memory if unreachable) |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:5000/api` | API endpoint URL consumed by the Next.js frontend |
 
-### Frontend (`frontend/.env.local`)
-| Variable | Default | Description |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:5000/api` | Backend REST API base URL |
+A template is provided in [`.env.example`](file:///c:/Users/aniru/Desktop/portfolio/bulk-certi/.env.example). You only need to edit the root `.env`!
 
 ---
 
