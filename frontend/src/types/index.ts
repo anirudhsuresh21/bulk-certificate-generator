@@ -119,3 +119,29 @@ export interface UploadResponse {
   totalPages: number;
   detectedNameSection?: DetectedNameSection;
 }
+
+export interface SmtpConfig {
+  host?: string;
+  port?: number;
+  secure?: boolean;
+  user?: string;
+  pass?: string;
+  from?: string;
+}
+
+export interface EmailSendResult {
+  email: string;
+  recipientName: string;
+  status: 'sent' | 'failed';
+  error?: string;
+  messageId?: string;
+  previewUrl?: string;
+}
+
+export interface BulkEmailSummary {
+  message: string;
+  total: number;
+  sent: number;
+  failed: number;
+  results: EmailSendResult[];
+}

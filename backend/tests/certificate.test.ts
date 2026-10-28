@@ -713,5 +713,55 @@ describe('Phase 1 Certificate Generator & Template API Test Suite', () => {
       expect(downloadRes.header['content-type']).toBe('application/zip');
       expect(downloadRes.header['content-disposition']).toContain('.zip');
     });
+
+    it('should auto-detect email column when parsing spreadsheet', async () => {
+      const csvData =
+        'Full Name,Email Address,Event Title\nAlice Wonder,alice@example.com,AI Summit\nBob Builder,bob@example.com,AI Summit';
+      const csvBuffer = Buffer.from(csvData, 'utf-8');
+
+      const res = await request(app)
+        .post(`/api/templates/${bulkTemplateId}/bulk-parse`)
+        .attach('spreadsheet', csvBuffer, 'participants_with_email.csv');
+
+      expect(res.status).toBe(200);
+      expect(res.body.headers).toContain('Email Address');
+      expect(res.body.suggestedMapping.recipient_email).toBe('Email Address');
+      expect(res.body.rows[0]['Email Address']).toBe('alice@example.com');
+    });
+
+    it('should test SMTP connection endpoint', async () => {
+      const res = await request(app)
+        .post('/api/email/test-connection')
+        .send({});
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should bulk send certificate emails with PDF attachments via Nodemailer', async () => {
+      const rows = [
+        { 'Full Name': 'Alice Wonder', 'Email Address': 'alice@example.com' },
+        { 'Full Name': 'Bob Builder', 'Email Address': 'bob@example.com' },
+      ];
+
+      const res = await request(app)
+        .post(`/api/templates/${bulkTemplateId}/bulk-email`)
+        .send({
+          rows,
+          columnMapping: {
+            recipient_name: 'Full Name',
+            recipient_email: 'Email Address',
+          },
+          subjectTemplate: 'Your Award Certificate for {{recipient_name}}',
+          bodyTemplate: '<p>Hi {{recipient_name}}, here is your certificate!</p>',
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.total).toBe(2);
+      expect(res.body.sent).toBe(2);
+      expect(res.body.failed).toBe(0);
+      expect(res.body.results[0].status).toBe('sent');
+      expect(res.body.results[0].email).toBe('alice@example.com');
+    });
   });
 });

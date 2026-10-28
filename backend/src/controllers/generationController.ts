@@ -6,6 +6,11 @@ import { Template } from '../models/Template';
 import { GenerateCertificateSchema } from '../validators/templateValidator';
 import { generateCertificatePdf, generateBulkCertificates } from '../services/pdfGenerator';
 import { parseExcelOrCsv } from '../services/excelParser';
+import {
+  verifySmtpConnection,
+  bulkSendCertificateEmails,
+  SmtpConfig,
+} from '../services/emailService';
 import { GENERATED_DIR, getSafeFilePath } from '../utils/fileStorage';
 
 export async function previewCertificate(
@@ -251,5 +256,96 @@ export async function downloadCertificate(
   } catch (error: any) {
     console.error('Error in downloadCertificate:', error);
     res.status(400).json({ error: 'Invalid certificate download request.' });
+  }
+}
+
+export async function testSmtp(req: Request, res: Response): Promise<void> {
+  try {
+    const smtpConfig: SmtpConfig = req.body.smtpConfig || req.body;
+    const result = await verifySmtpConnection(smtpConfig);
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error('Error in testSmtp:', error);
+    let friendlyError = error.message || 'Failed to verify SMTP server credentials.';
+    if (error.code === 'ETIMEDOUT' || error.command === 'CONN') {
+      friendlyError = `Connection timeout: Unable to connect to SMTP host within 15s. Please check that the host name is valid (e.g., smtp.office365.com) and that port 587 is accessible.`;
+    } else if (error.responseCode === 535 || error.code === 'EAUTH') {
+      friendlyError = `Authentication failed: Invalid credentials. For Microsoft 365, ensure SMTP AUTH is enabled or use an App Password.`;
+    }
+    res.status(400).json({
+      success: false,
+      error: friendlyError,
+    });
+  }
+}
+
+export async function bulkEmail(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const template = await Template.findById(id);
+
+    if (!template) {
+      res.status(404).json({ error: 'Template not found.' });
+      return;
+    }
+
+    const {
+      rows,
+      columnMapping = {},
+      emailColumn,
+      subjectTemplate,
+      bodyTemplate,
+      smtpConfig,
+    } = req.body;
+
+    if (!rows || !Array.isArray(rows) || rows.length === 0) {
+      res.status(400).json({ error: 'No recipient rows provided.' });
+      return;
+    }
+
+    // Map each row according to columnMapping
+    const mappedRecipients: Array<Record<string, string>> = rows.map(
+      (row: Record<string, string>) => {
+        const mappedRow: Record<string, string> = {};
+
+        // 1. Copy over mapped columns
+        for (const [fieldKey, sheetCol] of Object.entries(columnMapping)) {
+          if (sheetCol && row[sheetCol as string] !== undefined) {
+            mappedRow[fieldKey] = String(row[sheetCol as string]);
+          }
+        }
+
+        // 2. Also keep direct fieldKey matches or fallback
+        for (const [k, v] of Object.entries(row)) {
+          if (!mappedRow[k]) {
+            mappedRow[k] = String(v);
+          }
+        }
+
+        return mappedRow;
+      }
+    );
+
+    // Identify target email column name
+    const resolvedEmailCol = columnMapping['recipient_email'] || emailColumn || 'recipient_email';
+
+    const summary = await bulkSendCertificateEmails({
+      template: template.toObject(),
+      records: mappedRecipients,
+      emailColumn: resolvedEmailCol,
+      subjectTemplate,
+      bodyTemplate,
+      smtpConfig,
+    });
+
+    res.status(200).json({
+      message: `Bulk email campaign completed: ${summary.sent} sent, ${summary.failed} failed.`,
+      ...summary,
+    });
+  } catch (error: any) {
+    console.error('Error in bulkEmail:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to execute bulk email campaign.',
+    });
   }
 }

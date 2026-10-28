@@ -229,6 +229,63 @@ export const api = {
     });
   },
 
+  async testSmtpConnection(smtpConfig?: {
+    host?: string;
+    port?: number;
+    secure?: boolean;
+    user?: string;
+    pass?: string;
+    from?: string;
+  }): Promise<{ success: boolean; message: string; isTestAccount?: boolean }> {
+    return request<{ success: boolean; message: string; isTestAccount?: boolean }>(
+      '/email/test-connection',
+      {
+        method: 'POST',
+        body: JSON.stringify(smtpConfig || {}),
+      }
+    );
+  },
+
+  async bulkEmail(
+    templateId: string,
+    payload: {
+      rows: Array<Record<string, string>>;
+      columnMapping: Record<string, string>;
+      emailColumn?: string;
+      subjectTemplate?: string;
+      bodyTemplate?: string;
+      smtpConfig?: {
+        host?: string;
+        port?: number;
+        secure?: boolean;
+        user?: string;
+        pass?: string;
+        from?: string;
+      };
+    }
+  ): Promise<{
+    message: string;
+    total: number;
+    sent: number;
+    failed: number;
+    results: Array<{
+      email: string;
+      recipientName: string;
+      status: 'sent' | 'failed';
+      error?: string;
+      messageId?: string;
+      previewUrl?: string;
+    }>;
+  }> {
+    return request(
+      `/templates/${templateId}/bulk-email`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
   // Asset URLs
   getTemplateFileUrl(fileKey: string): string {
     return `${API_BASE}/templates/files/${fileKey}`;

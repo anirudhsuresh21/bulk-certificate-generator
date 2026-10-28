@@ -109,18 +109,29 @@ A template is provided in [`.env.example`](file:///c:/Users/aniru/Desktop/portfo
 - `GET /api/templates/files/:fileKey` — Securely stream template background file.
 - `GET /api/templates/signatures/:assetKey` — Securely stream uploaded signature asset.
 
-### Generation API
+### Generation & Email API
 - `POST /api/templates/:id/preview` — Generates a live, non-destructive PDF preview stream populated with current values.
 - `POST /api/templates/:id/generate` — Compiles the final PDF certificate, saves it to storage, and returns download URL.
 - `POST /api/templates/:id/bulk-parse` — Uploads an Excel (`.xlsx`, `.xls`) or CSV file, parses rows and columns, and returns auto-detected column mappings and data preview.
 - `POST /api/templates/:id/bulk-generate` — Generates certificates for all recipients in the spreadsheet. Supports `exportFormat: 'combined_pdf'` (all certificates in 1 master PDF) or `'zip_archive'` (ZIP of individual PDFs).
+- `POST /api/email/test-connection` — Verifies SMTP connection credentials using Nodemailer.
+- `POST /api/templates/:id/bulk-email` — Generates and emails personalized certificates directly to each recipient in the spreadsheet with customized subject, HTML body, and attached certificate PDF.
 - `GET /api/certificates/:id/download` — Securely downloads the generated certificate (PDF or ZIP) with custom filename headers.
 
 ---
 
-## 5. Visual Editor & Bulk Generation Features
+## 5. Visual Editor, Bulk Generation & Email Delivery Features
 
-1. **Rich Multi-Font Typography Engine**:
+1. **Nodemailer Bulk Email Delivery**:
+   - Send certificates directly to recipients using any spreadsheet with an email column.
+   - Automatically detects email columns (e.g., `Email`, `E-mail`, `Recipient Email`, `Email Address`).
+   - Generates each recipient's personalized certificate PDF and sends it as an attachment (`Certificate_<Recipient_Name>.pdf`).
+   - Dynamic subject and body templating with placeholders (e.g., `{{recipient_name}}`, `{{event_name}}`, `{{issue_date}}`).
+   - Supports system SMTP credentials via `.env` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) or custom in-app credentials.
+   - Built-in "Test SMTP Connection" button for instant connection verification before launching campaigns.
+   - Comprehensive live Delivery Report table with delivery status per recipient (`Sent` / `Failed`), error diagnostics, and test email preview links.
+
+2. **Rich Multi-Font Typography Engine**:
    - Supports 10 fonts across 4 categories:
      - **Calligraphy & Script**: Great Vibes, Alex Brush, Dancing Script, Pinyon Script (ideal for recipient names and honorifics).
      - **Serif**: Playfair Display, Cinzel, Times New Roman (ideal for certificate titles and institutions).
@@ -174,8 +185,8 @@ npm run test:backend
 ```
 
 **Results**:
-- 23 passed / 23 tests (100% pass rate).
-- Validated with landscape, portrait, multi-page PDFs, PNG templates, transparent signatures, custom TrueType fonts, Excel spreadsheets, and ZIP packaging.
+- 26 passed / 26 tests (100% pass rate).
+- Validated with landscape, portrait, multi-page PDFs, PNG templates, transparent signatures, custom TrueType fonts, Excel spreadsheets, ZIP packaging, and Nodemailer email delivery.
 
 ---
 

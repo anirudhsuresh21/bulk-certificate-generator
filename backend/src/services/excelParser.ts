@@ -42,6 +42,15 @@ const HEADER_MAP_PATTERNS: Record<string, RegExp[]> = {
   ],
   organization_name: [/org/i, /organization/i, /college/i, /school/i, /company/i],
   certificate_title: [/title/i, /certificate.*title/i],
+  recipient_email: [
+    /^email$/i,
+    /^e-mail$/i,
+    /mail/i,
+    /recipient.*email/i,
+    /student.*email/i,
+    /participant.*email/i,
+    /email.*address/i,
+  ],
 };
 
 export function parseExcelOrCsv(fileBuffer: Buffer): ParsedSheetData {

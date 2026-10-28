@@ -5,6 +5,8 @@ import {
   downloadCertificate,
   parseBulkSpreadsheet,
   bulkGenerate,
+  testSmtp,
+  bulkEmail,
 } from '../controllers/generationController';
 import { uploadSpreadsheetMiddleware } from '../middleware/uploadMiddleware';
 
@@ -22,5 +24,9 @@ router.post(
   parseBulkSpreadsheet
 );
 router.post('/templates/:id/bulk-generate', bulkGenerate);
+
+// Email campaign endpoints
+router.post('/email/test-connection', testSmtp);
+router.post('/templates/:id/bulk-email', bulkEmail);
 
 export default router;
