@@ -1,12 +1,45 @@
+# Dependencies
 node_modules/
-dist/
+.pnp
+.pnp.js
+
+# Next.js build output
 .next/
 out/
+apps/web/.next/
+
+# Environment files
 .env
-.env.local
-.DS_Store
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts & logs
+dist/
+apps/api/dist/
+apps/api/bundle/
+apps/api/runtime-assets/
+apps/api/public/*
+!apps/api/public/robots.txt
+build/
+apps/api/api/*.js
+apps/api/assets/
+apps/api/fonts/
+*.tsbuildinfo
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.turbo/
+pnpm-debug.log*
+
+# Runtime storage & uploads
+apps/api/uploads/
+uploads/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
