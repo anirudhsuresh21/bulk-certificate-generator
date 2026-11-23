@@ -1,0 +1,14 @@
+{
+  "framework": null,
+  "outputDirectory": "public",
+  "buildCommand": "npm run build",
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 60,
+      "includeFiles": "{bundle/**,runtime-assets/**,node_modules/@sparticuz/chromium/bin/**,../../node_modules/@sparticuz/chromium/bin/**}"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ]
+}
